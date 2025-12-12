@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Happy Birthday Viral!</title>
+    
+    <!-- Tailwind CSS (via CDN for standalone usage) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons (via CDN) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind Configuration -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              serif: ['Playfair Display', 'serif'],
+            },
+            colors: {
+              brand: {
+                orange: '#FF8C42', 
+                dark: '#1a1a2e',
+                slate: '#16213e',
+                rain: '#a8d0e6',
+              }
+            },
+            animation: {
+              'float': 'float 6s ease-in-out infinite',
+              'fade-in': 'fadeIn 1.5s ease-out forwards',
+            },
+            keyframes: {
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-20px)' },
+              },
+              fadeIn: {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              }
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+      body {
+        background-color: #050b14;
+        color: white;
+        overflow-x: hidden;
+      }
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #1a1a2e;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #FF8C42;
+        border-radius: 4px;
+      }
+      
+      /* Animation Utilities */
+      .paused { animation-play-state: paused; }
+      .opacity-0-forced { opacity: 0 !important; pointer-events: none !important; }
+      .translate-y-up { transform: translateY(-100%) !important; }
+      .opacity-100-forced { opacity: 1 !important; }
+      .hidden-forced { display: none !important; }
+    </style>
+  </head>
+  <body class="relative font-sans selection:bg-brand-orange selection:text-white min-h-screen flex flex-col items-center">
+
+    <!-- Film Grain Overlay -->
+    <div class="fixed inset-0 pointer-events-none opacity-[0.07] z-[60] mix-blend-overlay" 
+         style="background-image: url('https://grainy-gradients.vercel.app/noise.svg')">
+    </div>
+
+    <!-- Landing Screen -->
+    <div id="landing-screen" class="fixed inset-0 z-[200] bg-[#02040a] flex flex-col items-center justify-center transition-all duration-1000 ease-in-out">
+        <div class="relative z-10 text-center p-8">
+           <div class="mb-6 opacity-0 animate-[fadeIn_1s_ease-out_0.5s_forwards]">
+              <i data-lucide="sparkles" class="w-6 h-6 text-brand-orange mx-auto mb-2 animate-pulse"></i>
+              <span class="text-xs uppercase tracking-[0.4em] text-white/50 block mt-2">The Celebration</span>
+           </div>
+           
+           <h1 class="text-5xl md:text-7xl font-serif font-bold text-white mb-8 tracking-tight opacity-0 animate-[fadeIn_1s_ease-out_0.8s_forwards]">
+              Viral's Day
+           </h1>
+           
+           <button id="enter-btn" class="group relative px-8 py-4 bg-transparent overflow-hidden rounded-full border border-white/20 hover:border-brand-orange/50 transition-all duration-500 opacity-0 animate-[fadeIn_1s_ease-out_1.2s_forwards] cursor-pointer">
+              <div class="absolute inset-0 w-0 bg-white/5 transition-all duration-[250ms] ease-out group-hover:w-full"></div>
+              <div class="relative flex items-center gap-3">
+                 <span class="text-sm font-medium tracking-widest uppercase">Enter Experience</span>
+                 <i data-lucide="chevron-right" class="w-4 h-4 text-brand-orange group-hover:translate-x-1 transition-transform"></i>
+              </div>
+           </button>
+        </div>
+        
+        <!-- Background Gradient for Landing -->
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-900/10 via-[#02040a] to-black z-0"></div>
+    </div>
+
+    <!-- Ambient Background Effects -->
+    <div class="fixed inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#1a2342] via-[#050b14] to-[#000000] z-0 pointer-events-none opacity-80"></div>
+    
+    <!-- Interactive Spotlight -->
+    <div id="spotlight" class="fixed inset-0 z-0 pointer-events-none transition-opacity duration-1000"
+         style="background: radial-gradient(600px circle at 50% 50%, rgba(255, 140, 66, 0.06), transparent 40%)">
+    </div>
+
+    <!-- Floating Orbs -->
+    <div class="fixed top-1/4 left-1/4 w-96 h-96 bg-brand-orange/10 rounded-full blur-[100px] animate-float z-0 pointer-events-none mix-blend-screen"></div>
+    <div class="fixed bottom-1/4 right-1/4 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] animate-float z-0 pointer-events-none mix-blend-screen" style="animation-delay: -3s;"></div>
+
+    <!-- Rain Canvas -->
+    <canvas id="rain-canvas" class="fixed top-0 left-0 w-full h-full pointer-events-none z-0"></canvas>
+    
+    <!-- Flash Overlay for Camera Effect -->
+    <div id="flash-overlay" class="fixed inset-0 bg-white z-[100] pointer-events-none opacity-0 transition-opacity duration-700"></div>
+
+    <!-- Background Music -->
+    <audio id="bg-music" loop src="https://github.com/era443/project/raw/refs/heads/main/vir.mp3"></audio>
+
+    <!-- Navigation Bar -->
+    <nav id="navbar" class="fixed top-0 w-full z-50 py-6 px-8 flex justify-between items-center backdrop-blur-sm bg-black/10 transition-transform duration-1000 -translate-y-full">
+      <div class="text-xl font-serif font-bold tracking-widest text-white/80 border-b border-brand-orange/50 pb-1">
+        VIRAL'S DAY
+      </div>
+      
+      <button id="music-toggle" class="group flex items-center gap-3 px-5 py-2.5 rounded-full transition-all duration-500 backdrop-blur-md border bg-brand-orange/10 border-brand-orange/50 text-brand-orange shadow-[0_0_30px_rgba(255,140,66,0.2)] cursor-pointer">
+        <div class="relative">
+          <!-- Playing Animation -->
+          <div id="icon-playing" class="flex gap-1 h-3 items-end">
+            <span class="w-0.5 h-full bg-current animate-[bounce_1s_infinite]"></span>
+            <span class="w-0.5 h-2 bg-current animate-[bounce_1.2s_infinite]"></span>
+            <span class="w-0.5 h-3 bg-current animate-[bounce_0.8s_infinite]"></span>
+          </div>
+          <!-- Paused Icon -->
+          <div id="icon-paused" class="hidden">
+            <i data-lucide="play" class="w-3 h-3 fill-current"></i>
+          </div>
+        </div>
+        <span id="music-text" class="text-xs font-bold tracking-widest uppercase">Sound On</span>
+      </button>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main id="main-content" class="relative z-10 w-full max-w-7xl mx-auto px-6 pt-32 pb-12 min-h-screen flex flex-col lg:flex-row items-center justify-center gap-16 lg:gap-24 transition-all duration-1000 delay-500 opacity-0 translate-y-20">
+      
+      <!-- Left Side: Typography -->
+      <div class="flex-1 text-center lg:text-left order-2 lg:order-1">
+        
+        <div class="inline-flex items-center gap-2 mb-8 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md animate-[fadeIn_1s_ease-out_0.2s_forwards] opacity-0">
+           <i data-lucide="sparkles" class="w-3 h-3 text-brand-orange"></i>
+           <span class="text-[10px] uppercase tracking-[0.3em] font-semibold text-white/70">Special Edition</span>
+        </div>
+
+        <h1 class="font-serif text-6xl md:text-8xl lg:text-9xl font-bold leading-[0.9] tracking-tighter mb-8 text-white drop-shadow-2xl animate-[fadeIn_1s_ease-out_0.4s_forwards] opacity-0">
+          <span class="block text-transparent bg-clip-text bg-gradient-to-b from-white via-gray-200 to-gray-500">Happy</span>
+          <span class="block text-brand-orange relative z-10">
+            Birthday
+            <!-- Decorative line -->
+            <svg class="absolute -bottom-4 left-0 w-full h-3 text-brand-orange opacity-50 hidden lg:block" viewBox="0 0 100 10" preserveAspectRatio="none">
+               <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="2" fill="none" />
+            </svg>
+          </span>
+          <span class="block text-4xl md:text-6xl lg:text-7xl mt-2 font-light italic text-white/80">
+            Viral
+          </span>
+        </h1>
+
+        <div class="max-w-md mx-auto lg:mx-0 relative animate-[fadeIn_1s_ease-out_0.6s_forwards] opacity-0">
+           <div class="absolute -top-4 -left-6 text-brand-orange/20 rotate-180">
+              <i data-lucide="quote" class="w-12 h-12 fill-current"></i>
+           </div>
+           <p class="text-lg text-gray-400 font-light leading-relaxed mb-10 pl-2 border-l-2 border-brand-orange/30">
+             Wishing a legendary birthday to the one who creates his own sunshine. May your year be as epic as your vibe.
+           </p>
+        </div>
+
+        <div class="flex flex-wrap justify-center lg:justify-start gap-4 animate-[fadeIn_1s_ease-out_0.8s_forwards] opacity-0">
+           <div class="px-6 py-3 rounded-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10 backdrop-blur-md flex items-center gap-3 shadow-2xl group hover:-translate-y-1 transition-transform duration-300 cursor-default">
+              <div class="p-2 rounded-full bg-brand-orange/20 text-brand-orange group-hover:scale-110 transition-transform">
+                <i data-lucide="umbrella" class="w-5 h-5"></i>
+              </div>
+              <div class="text-left">
+                 <div class="text-[10px] uppercase text-white/50 tracking-wider">Style</div>
+                 <div class="text-sm font-bold text-white">Rain Walker</div>
+              </div>
+           </div>
+
+           <div class="px-6 py-3 rounded-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10 backdrop-blur-md flex items-center gap-3 shadow-2xl group hover:-translate-y-1 transition-transform duration-300 cursor-default">
+              <div class="p-2 rounded-full bg-blue-500/20 text-blue-400 group-hover:scale-110 transition-transform">
+                <i data-lucide="star" class="w-5 h-5 fill-current"></i>
+              </div>
+              <div class="text-left">
+                 <div class="text-[10px] uppercase text-white/50 tracking-wider">Status</div>
+                 <div class="text-sm font-bold text-white">Legend</div>
+              </div>
+           </div>
+        </div>
+      </div>
+
+      <!-- Right Side: Hero Image Card -->
+      <div class="flex-1 w-full max-w-[550px] order-1 lg:order-2 perspective-[2000px] group relative z-20 animate-[fadeIn_1.5s_ease-out_0.5s_forwards] opacity-0">
+        
+        <!-- Ambient Glow -->
+        <div class="absolute inset-10 bg-brand-orange/40 blur-[80px] rounded-full opacity-20 group-hover:opacity-50 transition-opacity duration-1000 animate-pulse"></div>
+
+        <!-- The 3D Card -->
+        <div id="hero-card" class="relative w-full aspect-[3/4] rounded-[20px] bg-gray-900 border border-white/10 shadow-2xl transition-all duration-700 transform lg:rotate-y-12 lg:rotate-x-6 hover:rotate-0 hover:scale-[1.02] cursor-pointer overflow-hidden" style="transform-style: preserve-3d;">
+          
+          <!-- Image Container -->
+          <div class="absolute inset-0 overflow-hidden rounded-[20px]">
+             <!-- Fallback logic handled in JS -->
+             <img id="hero-image" src="img/viral.jpg" alt="Viral" class="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-110">
+          </div>
+
+          <!-- Noise & Gradient Overlays -->
+          <div class="absolute inset-0 opacity-20 pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 transition-opacity duration-500 group-hover:opacity-60"></div>
+
+          <!-- Camera Viewfinder UI -->
+          <div class="absolute inset-4 border border-white/20 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-500 scale-95 group-hover:scale-100 pointer-events-none">
+             <div class="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-brand-orange"></div>
+             <div class="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-brand-orange"></div>
+             <div class="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-brand-orange"></div>
+             <div class="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-brand-orange"></div>
+          </div>
+
+          <!-- Live Indicator -->
+          <div class="absolute top-6 left-6 flex flex-col gap-2">
+             <div class="flex items-center gap-2 px-3 py-1 bg-black/40 backdrop-blur-md rounded-full border border-white/10 w-fit">
+                <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                <span class="text-[10px] font-bold tracking-widest text-white uppercase">LIVE</span>
+             </div>
+          </div>
+
+          <!-- Card Bottom Info -->
+          <div class="absolute bottom-8 left-8 right-8 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+             <div class="h-0.5 w-12 bg-brand-orange mb-4 transition-all duration-500 group-hover:w-24"></div>
+             <h2 class="text-3xl font-serif font-bold text-white mb-1 drop-shadow-lg">The Rain Walker</h2>
+             <p class="text-gray-300 text-xs tracking-widest uppercase font-medium flex justify-between items-center">
+                <span>Mumbai Edition</span>
+                <span class="opacity-0 group-hover:opacity-100 transition-opacity duration-500 text-brand-orange flex items-center gap-1">
+                  <i data-lucide="aperture" class="w-3 h-3"></i> View Photo
+                </span>
+             </p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer id="footer" class="w-full border-t border-white/5 bg-black/20 backdrop-blur-md py-6 text-center relative z-10 transition-all duration-1000 delay-1000 opacity-0">
+      <p class="text-white/30 text-xs tracking-[0.2em] font-light uppercase hover:text-white transition-colors duration-300">
+         © 2025 Viral's Birthday Celebration
+      </p>
+    </footer>
+
+    <!-- Fullscreen Image Modal -->
+    <div id="image-modal" class="fixed inset-0 z-[110] bg-black/98 backdrop-blur-xl hidden flex items-center justify-center p-4 animate-fade-in cursor-zoom-out">
+        <div class="relative max-w-5xl w-full max-h-screen outline-none">
+          <img id="modal-image" src="" alt="Viral Fullscreen" class="w-full h-auto max-h-[90vh] object-contain rounded-lg shadow-2xl">
+          <button id="close-modal" class="absolute -top-12 right-0 p-2 text-white/50 hover:text-white transition-colors">
+            Close [ESC]
+          </button>
+        </div>
+    </div>
+
+    <!-- MAIN JAVASCRIPT LOGIC -->
+    <script>
+      // Initialize Lucide Icons
+      window.addEventListener('DOMContentLoaded', () => {
+        if (window.lucide) {
+          window.lucide.createIcons();
+        }
+      });
+
+      // --- Configuration & State ---
+      let isPlaying = false;
+      let imgErrorCount = 0;
+      const FALLBACK_IMAGE = "https://raw.githubusercontent.com/era443/project/refs/heads/main/vir.jpg";
+      
+      // --- DOM Elements ---
+      const audio = document.getElementById('bg-music');
+      const landingScreen = document.getElementById('landing-screen');
+      const mainContent = document.getElementById('main-content');
+      const navbar = document.getElementById('navbar');
+      const footer = document.getElementById('footer');
+      const enterBtn = document.getElementById('enter-btn');
+      const musicToggle = document.getElementById('music-toggle');
+      const musicText = document.getElementById('music-text');
+      const iconPlaying = document.getElementById('icon-playing');
+      const iconPaused = document.getElementById('icon-paused');
+      const heroCard = document.getElementById('hero-card');
+      const heroImage = document.getElementById('hero-image');
+      const modalImage = document.getElementById('modal-image');
+      const imageModal = document.getElementById('image-modal');
+      const flashOverlay = document.getElementById('flash-overlay');
+      const closeModalBtn = document.getElementById('close-modal');
+
+      // --- Interaction Logic ---
+      
+      // Enter Experience Button
+      enterBtn.addEventListener('click', () => {
+        // Transition Screens
+        landingScreen.classList.add('opacity-0-forced', 'translate-y-up');
+        mainContent.classList.remove('opacity-0', 'translate-y-20');
+        navbar.classList.remove('-translate-y-full');
+        footer.classList.remove('opacity-0');
+        
+        // Start Music (Fade In)
+        isPlaying = true;
+        audio.volume = 0;
+        audio.play().then(() => {
+            let vol = 0;
+            const interval = setInterval(() => {
+                if (vol < 0.8) {
+                    vol += 0.05;
+                    audio.volume = vol;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 100);
+        }).catch((err) => {
+            console.log("Audio play blocked (user interaction required):", err);
+            isPlaying = false;
+            updateMusicIcon();
+        });
+      });
+
+      // Music Toggle Logic
+      function updateMusicIcon() {
+        if (isPlaying) {
+            iconPlaying.classList.remove('hidden');
+            iconPaused.classList.add('hidden');
+            musicText.innerText = "Sound On";
+            musicToggle.classList.add('shadow-[0_0_30px_rgba(255,140,66,0.2)]', 'text-brand-orange', 'bg-brand-orange/10', 'border-brand-orange/50');
+            musicToggle.classList.remove('bg-white/5', 'text-white/60');
+        } else {
+            iconPlaying.classList.add('hidden');
+            iconPaused.classList.remove('hidden');
+            musicText.innerText = "Play Music";
+            musicToggle.classList.remove('shadow-[0_0_30px_rgba(255,140,66,0.2)]', 'text-brand-orange', 'bg-brand-orange/10', 'border-brand-orange/50');
+            musicToggle.classList.add('bg-white/5', 'text-white/60');
+        }
+      }
+
+      musicToggle.addEventListener('click', () => {
+        isPlaying = !isPlaying;
+        if (isPlaying) {
+            audio.play();
+        } else {
+            audio.pause();
+        }
+        updateMusicIcon();
+      });
+
+      // Image Fallback System (Local -> Root -> GitHub)
+      heroImage.onerror = () => {
+        if (imgErrorCount === 0) {
+            console.log("Image load failed, trying root...");
+            heroImage.src = "viral.jpg";
+            imgErrorCount = 1;
+        } else if (imgErrorCount === 1) {
+             console.log("Image load failed, trying fallback...");
+            heroImage.src = FALLBACK_IMAGE;
+            imgErrorCount = 2;
+        }
+      };
+
+      // Mouse Spotlight Effect
+      const spotlight = document.getElementById('spotlight');
+      document.addEventListener('mousemove', (e) => {
+        spotlight.style.background = `radial-gradient(600px circle at ${e.clientX}px ${e.clientY}px, rgba(255, 140, 66, 0.06), transparent 40%)`;
+      });
+
+      // --- Modal / Camera Flash Logic ---
+      heroCard.addEventListener('click', () => {
+        // Trigger Flash
+        flashOverlay.classList.remove('opacity-0');
+        flashOverlay.classList.add('opacity-100-forced');
+        
+        setTimeout(() => {
+            flashOverlay.classList.remove('opacity-100-forced');
+            flashOverlay.classList.add('opacity-0');
+            
+            // Open Modal
+            modalImage.src = heroImage.src;
+            imageModal.classList.remove('hidden');
+        }, 200);
+      });
+
+      function closeModal() {
+        imageModal.classList.add('hidden');
+      }
+
+      imageModal.addEventListener('click', closeModal);
+      closeModalBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeModal();
+      });
+      
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !imageModal.classList.contains('hidden')) {
+            closeModal();
+        }
+      });
+
+      // --- Canvas Rain Effect ---
+      function initRain() {
+        const canvas = document.getElementById('rain-canvas');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        
+        const drops = [];
+        const maxDrops = 150; // Adjust for density
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        function createDrops() {
+            for (let i = 0; i < maxDrops; i++) {
+                drops.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    speed: Math.random() * 4 + 2,
+                    len: Math.random() * 20 + 10,
+                });
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            ctx.strokeStyle = 'rgba(174, 194, 224, 0.2)'; // Rain Color
+            ctx.lineWidth = 1;
+            ctx.lineCap = 'round';
+
+            drops.forEach((drop) => {
+                ctx.beginPath();
+                ctx.moveTo(drop.x, drop.y);
+                ctx.lineTo(drop.x, drop.y + drop.len);
+                ctx.stroke();
+
+                drop.y += drop.speed;
+
+                if (drop.y > height) {
+                    drop.y = -drop.len;
+                    drop.x = Math.random() * width;
+                }
+            });
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+        createDrops();
+        animate();
+      }
+
+      // Start the Rain
+      initRain();
+
+    </script>
+  </body>
+</html>
